@@ -1,78 +1,58 @@
-/**
- * Copyright 2017-present, Facebook, Inc. All rights reserved.
- *
- * This source code is licensed under the license found in the
- * LICENSE file in the root directory of this source tree.
- *
- *
- * Starter Project for Messenger Platform Quick Start Tutorial
- *
- * Use this project as the starting point for following the 
- * Messenger Platform quick start tutorial.
- *
- * https://developers.facebook.com/docs/messenger-platform/getting-started/quick-start/
- *
- */
-
 'use strict';
 
 // Imports dependencies and set up http server
-const 
-  request = require('request'),
+const
   express = require('express'),
-  body_parser = require('body-parser'),
-  app = express().use(body_parser.json()); // creates express http server
+  bodyParser = require('body-parser'),
+  app = express().use(bodyParser.json()); // creates express http server
 
 // Sets server port and logs message on success
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
 
-// Accepts POST requests at /webhook endpoint
-app.post('/webhook', (req, res) => {  
+// Creates the endpoint for our webhook 
+app.post('/webhook', (req, res) => {
 
-  // Parse the request body from the POST
   let body = req.body;
 
-  // Check the webhook event is from a Page subscription
+  // Checks this is an event from a page subscription
   if (body.object === 'page') {
 
-    // Iterate over each entry - there may be multiple if batched
-    body.entry.forEach(function(entry) {
+    // Iterates over each entry - there may be multiple if batched
+    body.entry.forEach(function (entry) {
 
-      // Get the webhook event. entry.messaging is an array, but 
-      // will only ever contain one event, so we get index 0
+      // Gets the message. entry.messaging is an array, but 
+      // will only ever contain one message, so we get index 0
       let webhook_event = entry.messaging[0];
       console.log(webhook_event);
-      
     });
 
-    // Return a '200 OK' response to all events
+    // Returns a '200 OK' response to all requests
     res.status(200).send('EVENT_RECEIVED');
-
   } else {
-    // Return a '404 Not Found' if event is not from a page subscription
+    // Returns a '404 Not Found' if event is not from a page subscription
     res.sendStatus(404);
   }
 
 });
 
-// Accepts GET requests at the /webhook endpoint
+// Adds support for GET requests to our webhook
 app.get('/webhook', (req, res) => {
-  
-  /** UPDATE YOUR VERIFY TOKEN **/
-  const VERIFY_TOKEN = "<YOUR_VERIFY_TOKEN>";
-  
-  // Parse params from the webhook verification request
+
+  // Your verify token. Should be a random string.
+  let VERIFY_TOKEN = "EAAHrhb66sPkBAEfPZAJ6f46J2zUmT3od0OKlbs6klrFxOzviNBZCNcjqtHEgZBEdOgaohI6u3qNWZCLdCq9hUosvtUGCmL7DbbzaPQKYEGmpPmiv3nc7BxUhn7fxPF0WB01ZBrHEiqZCTTV1zlJVxMxTc4XTyeVvILWVpZAHg7vPZCPHFh412zNz"
+    
+  // Parse the query params
   let mode = req.query['hub.mode'];
   let token = req.query['hub.verify_token'];
   let challenge = req.query['hub.challenge'];
     
-  // Check if a token and mode were sent
+  // Checks if a token and mode is in the query string of the request
   if (mode && token) {
   
-    // Check the mode and token sent are correct
+    // Checks the mode and token sent is correct
     if (mode === 'subscribe' && token === VERIFY_TOKEN) {
       
-      // Respond with 200 OK and challenge token from the request
+      // Responds with the challenge token from the request
       console.log('WEBHOOK_VERIFIED');
       res.status(200).send(challenge);
     
