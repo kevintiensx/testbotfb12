@@ -22,8 +22,13 @@ app.post('/webhook', (req, res) => {
 
       // Gets the message. entry.messaging is an array, but 
       // will only ever contain one message, so we get index 0
+
       let webhook_event = entry.messaging[0];
       console.log(webhook_event);
+
+      // Get the sender PSID
+      let sender_psid = webhook_event.sender.id;
+      console.log('Sender PSID: ' + sender_psid);
     });
 
     // Returns a '200 OK' response to all requests
@@ -40,25 +45,25 @@ app.get('/webhook', (req, res) => {
 
   // Your verify token. Should be a random string.
   let VERIFY_TOKEN = "EAAHrhb66sPkBAEfPZAJ6f46J2zUmT3od0OKlbs6klrFxOzviNBZCNcjqtHEgZBEdOgaohI6u3qNWZCLdCq9hUosvtUGCmL7DbbzaPQKYEGmpPmiv3nc7BxUhn7fxPF0WB01ZBrHEiqZCTTV1zlJVxMxTc4XTyeVvILWVpZAHg7vPZCPHFh412zNz"
-    
+
   // Parse the query params
   let mode = req.query['hub.mode'];
   let token = req.query['hub.verify_token'];
   let challenge = req.query['hub.challenge'];
-    
+
   // Checks if a token and mode is in the query string of the request
   if (mode && token) {
-  
+
     // Checks the mode and token sent is correct
     if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-      
+
       // Responds with the challenge token from the request
       console.log('WEBHOOK_VERIFIED');
       res.status(200).send(challenge);
-    
+
     } else {
       // Responds with '403 Forbidden' if verify tokens do not match
-      res.sendStatus(403);      
+      res.sendStatus(403);
     }
   }
 });
